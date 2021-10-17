@@ -1,0 +1,23 @@
+-mkdir, -touchz:
+
+1. hdfs dfs -mkdir -p 1
+2. hdfs dfs -mkdir -p 1/2
+3. hdfs dfs -rm -skipTrash <file>
+4. hdfs dfs -touchz 1/2/3.txt
+5. hsdf dfs -rm 1/2/3.txt
+6. hdfs dfs -rm -r 1/
+
+-put, -cat, -tail, -cp
+
+0. docker cp 1/2.csv namenode:/
+1. hdfs dfs -put 1.csv /
+2. hdfs dfs -cat /1.csv 
+3. hdfs dfs -tail /1.csv 
+4. hdfs dfs -head /1.csv
+5. hdfs dfs -cp /1.csv home/
+
+-setrep -w, fsck
+
+2. hdfs dfs -setrep -w 2 /1.csv
+3. hdfs fsck /data.csv -files -blocks -locations
+4. hdfs fsck -blockId blk_1073741830
