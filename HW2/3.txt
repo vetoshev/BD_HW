@@ -1,0 +1,34 @@
+CREATE TABLE artists (mbid STRING, artist_mb STRING, artist_lastfm STRING, country_mb STRING, country_lastfm STRING, tags_mb STRING, tags_lastfm STRING, listeners_lastfm FLOAT, scrobbles_lastfm  FLOAT, ambiguous_artist INT) row format delimited fields terminated by ',';
+LOAD DATA LOCAL INPATH '/artists.csv' OVERWRITE INTO TABLE artists;
+
+
+A)SELECT artist_mb, scrobbles_lastfm FROM hue__tmp_artists SORT BY scrobbles_lastfm  DESC LIMIT 1;
+
+The Beatles
+
+
+b)SELECT COUNT(*) as count, tags_lastfm FROM hue__tmp_artists WHERE tags_lastfm <> ''  GROUP BY tags_lastfm SORT BY count DESC LIMIT 1;
+
+50	United States
+
+
+c)SELECT most_popular.rn as rn, most_popular.tags_lastfm, most_popular.artist_lastfm, most_popular.count_artist FROM (SELECT popular.count_artist as count_artist, row_number() over (partition by popular.tags_lastfm order by popular.count_artist DESC) as rn, popular.artist_lastfm as artist_lastfm, popular.tags_lastfm as tags_lastfm  FROM (SELECT COUNT(artist_lastfm) as count_artist, artist_lastfm, tags_lastfm FROM hue__tmp_artists WHERE tags_lastfm IN (SELECT tags.tags_lastfm as tags_lastfm FROM (SELECT COUNT(*) as count, tags_lastfm FROM hue__tmp_artists WHERE tags_lastfm <> '' GROUP  BY tags_lastfm SORT BY count DESC LIMIT 10) tags) GROUP BY tags_lastfm, artist_lastfm SORT BY tags_lastfm, count_artist DESC) popular ) most_popular WHERE rn=1 LIMIT 10
+ 
+  rn  | most_popular.tags_lastfm  | most_popular.artist_lastfm  | most_popular.count_artist  |
++-----+---------------------------+-----------------------------+----------------------------+
+| 1   | All                       | M.A.M                       | 2                          |
+| 1   | House                     | Albert Cabrera              | 2                          |
+| 1   | blues                     | The Blue Boys               | 2                          |
+| 1   | electronic                | DORAN                       | 2                          |
+| 1   | jazz                      |  Jr."                       | 7                          |
+| 1   | rockabilly                | The Smith Brothers          | 2                          |
+| 1   | seen live                 | Tom Watson                  | 2                          |
+| 1   | spotify                   | John Corey                  | 2                          |
+| 1   | trance                    | Lost Angels                 | 3                          |
+| 1   | under 2000 listeners      | Jodie                       | 2                          |
+
+
+d)SELECT max(listeners_lastfm) as average, country_lastfm FROM hue__tmp_artists WHERE country_lastfm IN (SELECT popular_country.country_lastfm FROM
+(SELECT COUNT(*) as count, country_lastfm FROM hue__tmp_artists WHERE country_lastfm <> ''  GROUP BY country_lastfm SORT BY count DESC LIMIT 1) popular_country) GROUP BY country_lastfm LIMIT 1;
+
+4620835	United States
